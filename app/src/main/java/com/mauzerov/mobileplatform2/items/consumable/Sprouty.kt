@@ -1,7 +1,8 @@
 package com.mauzerov.mobileplatform.items.consumables
 
 import android.content.res.Resources
-import com.mauzerov.mobileplatform.R
+import com.mauzerov.mobileplatform2.R
+import com.mauzerov.mobileplatform2.items.consumable.Food
 
 class Sprouty(resources: Resources) : Food(resources) {
     override val healthPoints: Int

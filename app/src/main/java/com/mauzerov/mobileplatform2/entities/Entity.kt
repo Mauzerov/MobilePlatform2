@@ -1,16 +1,15 @@
-package com.mauzerov.mobileplatform.game.entity
+package com.mauzerov.mobileplatform2.entities
 
-import com.mauzerov.mobileplatform.game.canvas.GameConstants
-import com.mauzerov.mobileplatform.sizes.Position
-import com.mauzerov.mobileplatform.sizes.Size
+import android.util.Size
+
+import com.mauzerov.mobileplatform2.include.Position
 import java.io.Externalizable
 import java.io.ObjectInput
 import java.io.ObjectOutput
-import java.io.Serializable
 
 abstract class Entity: Externalizable {
     val position: Position = Position(0,0)
-    val size: Size = Size(0, 0);
+    var size: Size = Size(0, 0);
 
     open fun move() {
         position.move()

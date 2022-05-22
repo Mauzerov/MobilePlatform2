@@ -1,9 +1,9 @@
 package com.mauzerov.mobileplatform2.entities.living
 
 import android.util.Log
-import com.mauzerov.mobileplatform.game.canvas.GameConstants
-import com.mauzerov.mobileplatform.game.entity.Entity
-import com.mauzerov.mobileplatform.sizes.Position
+import com.mauzerov.mobileplatform2.entities.Entity
+import com.mauzerov.mobileplatform2.include.Position
+import com.mauzerov.mobileplatform2.values.const.GameConstants
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -1,6 +1,6 @@
 package com.mauzerov.mobileplatform2.entities.living
 
-import com.mauzerov.mobileplatform.game.save.PlayerSaveData
+import android.util.Size
 import com.mauzerov.mobileplatform.items.Equipment
 import com.mauzerov.mobileplatform.items.ItemBase
 
@@ -21,11 +21,12 @@ class Player(x: Int, y: Int, w: Int, h: Int) : LivingEntity() {
 
     init {
         position.set(x, y)
-        size.set(w, h)
+        size = Size(w, h)
+
     }
 
-    fun setFromSaveData(saveData: PlayerSaveData) {
-        position.set(saveData.position.x, saveData.position.y)
-        health = saveData.heath
-    }
+//    fun setFromSaveData(saveData: PlayerSaveData) {
+//        position.set(saveData.position.x, saveData.position.y)
+//        health = saveData.heath
+//    }
 }
