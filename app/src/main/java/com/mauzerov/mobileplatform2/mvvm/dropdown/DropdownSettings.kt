@@ -2,15 +2,14 @@ package com.mauzerov.mobileplatform2.mvvm.dropdown
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
-import android.util.AttributeSet
 import android.widget.*
 import com.mauzerov.mobileplatform2.R
-import com.mauzerov.mobileplatform2.mvvm.dropdown.Droppable
 
+@SuppressLint("ViewConstructor")
 class DropdownSettings(context: Activity) : Droppable(context) {
     private var locationButton: Button
     private var locationCheckBox: CheckBox
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private var locationSwitch: Switch
 
     init {
