@@ -1,26 +1,6 @@
-package com.mauzerov.mobileplatform2
+package com.mauzerov.mobileplatform2.engine.threding
 
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
-
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import org.junit.Assert.*
-
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 import android.graphics.Point
-
-var s = ""
-
-fun println(z: String) = {
-    ->
-    s+=z+"\n"
-}
 
 fun <T>T.between(minimumValue: T, maximumValue: T): Boolean where T : Comparable<T>, T: Number {
     return minimumValue < this && this < maximumValue
@@ -86,30 +66,5 @@ fun main(args: Array<String>) {
         if (it.clickIf(-31, 0))
             it.onClick()
         it.size
-    }
-}
-
-
-@RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
-    @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-//        assertEquals("com.mauzerov.mobileplatform2", appContext.packageName)
-
-
-
-
-        main(arrayOf())
-
-        assertEquals("1. Ini\n" +
-                "2. Ini\n" +
-                "DEBUG: java.awt.Point[x=-31,y=-20]\n" +
-                "Cliced1 java.awt.Point[x=-31,y=-20]\n" +
-                "Cliced1 java.awt.Point[x=-31,y=-20]\n" +
-                "DEBUG: java.awt.Point[x=99,y=0]\n" +
-                "Cliced2 java.awt.Point[x=99,y=0]\n" +
-                "Cliced2 java.awt.Point[x=99,y=0]\n", s)
     }
 }
