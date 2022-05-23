@@ -36,6 +36,7 @@ abstract class Droppable constructor(context: Activity) :
     }
 
     private fun onClose(): Long {
+        bringToFront()
         this.startAnimation(animationSlideUp)
         Handler(Looper.getMainLooper()).postDelayed(
             { this.visibility = GONE }, animationSlideUp.duration
@@ -44,6 +45,7 @@ abstract class Droppable constructor(context: Activity) :
     }
 
     private fun onOpen(): Long {
+        bringToFront()
         this.visibility = VISIBLE
         this.startAnimation(animationSlideDown)
         return animationSlideDown.duration

@@ -48,21 +48,15 @@ fun Canvas.gameDrawText(text: String, x: Int, y: Int, color: Long, fontSize: Flo
 }
 
 fun Canvas.gameDrawRect(x: Int, y: Int, w: Int, h: Int, @ColorInt color: Int) {
-    Log.d("idk", "${GameViewCanvasConfig.screenHeight} ${x.toFloat() - GameViewCanvasConfig.screenOffsetX} ${GameViewCanvasConfig.screenHeight - y.toFloat() - GameViewCanvasConfig.screenOffsetY} $w $h")
     val left = x.toFloat() - GameViewCanvasConfig.screenOffsetX
     val top = GameViewCanvasConfig.screenHeight - y.toFloat() - GameViewCanvasConfig.screenOffsetY
     val right = left + w.toFloat()
     val bottom = top + h.toFloat()
-    Log.d("Values", "x=$x; y=$y; w=$w; h=$h")
-    Log.d("Values", "left=$left; top=$top right=$right; bottom=$bottom")
-    Log.d("Values", "sH=${GameViewCanvasConfig.screenHeight}")
-    Log.d("Values", "offset=${GameViewCanvasConfig.screenOffsetX} ${GameViewCanvasConfig.screenOffsetY}")
-    Log.d("Values", "alpha=${Color.alpha(color)}")
+
     this.drawRect(left, top,
         right, bottom, GameColor.paint.apply {
             this.alpha = Color.alpha(color)
             this.color = color
         }
     )
-    Log.d("Color", "${GameColor.paint.alpha}")
 }

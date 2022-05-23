@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
 //            settingsDroppable.open()
 //        }
 
-        findViewById<View>(R.id.joystick).bringToFront()
 
         gameView = GameView(this)
         val panelLayout = RelativeLayout.LayoutParams(
@@ -36,6 +35,25 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
             setMargins(0, 0, 0, 0)
         }
         this.addContentView(gameView, panelLayout)
+
+        gameView.bringToFront()
+        findViewById<View>(R.id.joystick).bringToFront()
+
+    }
+
+    val setting: Droppable
+        get() = settingsDroppable
+
+    fun addViewOnTop(view: View, height: Int) {
+        val panelLayout = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            height
+        ).apply {
+            leftMargin = 0
+            topMargin = 0
+            rightMargin = 0
+        }
+        this.addContentView(view, panelLayout)
     }
 
     override fun onJoystickMoved(percent: Dimensions, id: Int) {

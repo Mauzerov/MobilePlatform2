@@ -11,6 +11,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import com.mauzerov.mobileplatform.items.ItemDrawable
+import com.mauzerov.mobileplatform2.MainActivity
 import com.mauzerov.mobileplatform2.R
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
@@ -21,6 +22,7 @@ import com.mauzerov.mobileplatform2.extensions.*
 import com.mauzerov.mobileplatform2.include.Biome
 import com.mauzerov.mobileplatform2.include.Height
 import com.mauzerov.mobileplatform2.include.Position
+import com.mauzerov.mobileplatform2.values.const.GameConstants.RefreshInterval
 import com.mauzerov.mobileplatform2.values.const.GameConstants.biomeMap
 import com.mauzerov.mobileplatform2.values.const.GameConstants.doubleTileHeight
 import com.mauzerov.mobileplatform2.values.const.GameConstants.doubleTileWidth
@@ -42,10 +44,6 @@ class GameView(private val context: Activity):
     private class UpdateThread(private val gameView: GameView) : Thread() {
         var isRunning = false
 
-        companion object {
-            const val RefreshInterval = 9L
-        }
-
         @SuppressLint("WrongCall")
         override fun run() {
             while (isRunning) {
@@ -56,7 +54,6 @@ class GameView(private val context: Activity):
                     for (entity in gameView.entities) {
                         entity.move()
                     }
-                    Log.d("idk", "idk")
                     synchronized(gameView.holder) { gameView.onDraw(canvas) }
                     val duration = System.currentTimeMillis() - startTime
 
@@ -100,8 +97,11 @@ class GameView(private val context: Activity):
     val entities: MutableList<LivingEntity> = mutableListOf()
 
     private var thread: UpdateThread = UpdateThread(this)
+    private var gameBar = GameBar(context, this)
 
     init {
+        (context as MainActivity).addViewOnTop(gameBar, gameBar.barHeight)
+
         holder.addCallback(this)
         entities.add(player)
 
@@ -126,7 +126,6 @@ class GameView(private val context: Activity):
             {
                 if (i !in 0 until mapSize || (biomeMap[i] == Biome.Ocean)) {
                     // Generate Ocean
-                        Log.d("Values", "i=$i")
                     drawOcean(g, drawX)
                 }
                 else {
@@ -220,6 +219,7 @@ class GameView(private val context: Activity):
             //drawing.RectBorderless(g, DisplayRect(width / 2 - 2,0, 4, height), AlphaColor(0xffc0c0))
         }
     }
+
     private fun drawOcean(g: Canvas, x: Int) {
         g.gameDrawRect(x, -oceanDepth, tileSize.width, doubleTileHeight, Color.argb(0xFF, 0, 0xFF, 0xFF))
     }
@@ -248,10 +248,17 @@ class GameView(private val context: Activity):
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         Log.d("Point", "x=${event?.x}; y=${event?.y}")
+        Log.d("Point", "${gameBar.parent}")
+        this.gameBar.bringToFront()
         return false
     }
 
     override fun onJoystickMoved(percent: Dimensions, id: Int) {
         player.position.setVelocity(percent.x.times(5).toInt(), null)
+    }
+
+    override fun bringToFront() {
+        super.bringToFront()
+        this.gameBar.bringToFront()
     }
 }
