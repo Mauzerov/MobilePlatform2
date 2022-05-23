@@ -3,16 +3,17 @@ package com.mauzerov.mobileplatform2.engine.threding
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
+import android.graphics.*
 import android.os.SystemClock
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import com.mauzerov.mobileplatform.items.ItemDrawable
 import com.mauzerov.mobileplatform2.R
+import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
+import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.drawing.Textures
 import com.mauzerov.mobileplatform2.entities.living.LivingEntity
 import com.mauzerov.mobileplatform2.entities.living.Player
@@ -27,11 +28,15 @@ import com.mauzerov.mobileplatform2.values.const.GameConstants.heightMap
 import com.mauzerov.mobileplatform2.values.const.GameConstants.mapSize
 import com.mauzerov.mobileplatform2.values.const.GameConstants.oceanDepth
 import com.mauzerov.mobileplatform2.values.const.GameConstants.tileSize
-import org.w3c.dom.Entity
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
-class GameView(private val context: Activity): SurfaceView(context), SurfaceHolder.Callback {
+class GameView(private val context: Activity):
+    SurfaceView(context),
+    SurfaceHolder.Callback,
+    View.OnTouchListener,
+    JoyStick.JoystickListener
+{
     private val textures = Textures(context.resources)
 
     private class UpdateThread(private val gameView: GameView) : Thread() {
@@ -98,6 +103,9 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
 
     init {
         holder.addCallback(this)
+        entities.add(player)
+
+        setOnTouchListener(this)
     }
 
     public override fun onDraw(g: Canvas?) {
@@ -118,8 +126,10 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
             {
                 if (i !in 0 until mapSize || (biomeMap[i] == Biome.Ocean)) {
                     // Generate Ocean
+                        Log.d("Values", "i=$i")
                     drawOcean(g, drawX)
-                } else {
+                }
+                else {
                     if (heightMap[i].isTunnel()) {
                         for (j in -1 .. heightMap[i].ground) {
                             // Generate Ground
@@ -138,7 +148,8 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
                         // Draw Grass
                         g.gameDrawBitmap(textures.ground.grass, drawX, heightMap[i].actual * tileSize.height)
 
-                    } else if (!heightMap[i].isSame()) {
+                    }
+                    else if (!heightMap[i].isSame()) {
                         for (j in -1 .. heightMap[i].ground) {
                             // Generate Ground
                             g.gameDrawBitmap(textures.ground.dirt, drawX, j * tileSize.height)
@@ -153,10 +164,11 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
                         // Draw Grass
                         g.gameDrawBitmap(textures.ground.grass3, drawX, heightMap[i].actual * tileSize.height)
 
-                    } else {
+                    }
+                    else {
                         for (j in -1 .. heightMap[i].actual) {
                             // Generate Ground
-                            g.gameDrawBitmap(textures.ground.dirt2, drawX, j * tileSize.height)
+                            g.gameDrawBitmap(textures.ground.dirt, drawX, j * tileSize.height)
                         }
 
                         // Draw Grass
@@ -171,14 +183,14 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
 
                     if (biomeMap[i] == Biome.Forest) {
                         // Draw Tree
-                        g.gameDrawBitmap(textures.tree.spruce, drawX, heightMap[i].actual * tileSize.height - 128)
+                        g.gameDrawBitmap(textures.tree.spruce, drawX, heightMap[i].actual * tileSize.height + 128)
 
                         if (biomeMap.elementAtOrNull(i + 1) == Biome.Forest) {
                             if (heightMap[i] == heightMap[i + 1]) {
                                 // Draw More Tree
                                 g.gameDrawBitmap(textures.tree.spruce,
                                     drawX + (tileSize.width shr 1),
-                                    heightMap[i].actual * tileSize.height - 128)
+                                    heightMap[i].actual * tileSize.height + 128)
                             }
                         }
                     }
@@ -191,7 +203,7 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
                     )
                     g.gameDrawText(biomeMap[i].toString(),
                         drawX,
-                        (heightMap[i].actual * tileSize.height)-tileSize.height,
+                        (heightMap[i].actual * tileSize.height)+tileSize.height,
                         0xFF_00_00_00,
                         20f
                     )
@@ -200,6 +212,8 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
                 drawX += tileSize.width
             }
             drawPlayer(g)
+
+//            g.gameDrawRect(705, 610, 801, 674, 0xFFFF00FF)
 //            val timeElapsed = (1000F / (SystemClock.elapsedRealtime() - lastTime) * 10).roundToInt().toFloat() / 10
 //
 //            drawing.Text(g, timeElapsed.toString(), 10, 200, blackAlphaColor, 40f)
@@ -207,7 +221,7 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
         }
     }
     private fun drawOcean(g: Canvas, x: Int) {
-        g.gameDrawRect(x, oceanDepth, tileSize.width, doubleTileHeight, 0xFF00FFFF)
+        g.gameDrawRect(x, -oceanDepth, tileSize.width, doubleTileHeight, Color.argb(0xFF, 0, 0xFF, 0xFF))
     }
     private fun getMinPossibleHeight(pos: Position) : Int {
         val mapX = ((pos.x) / tileSize.width)
@@ -229,6 +243,15 @@ class GameView(private val context: Activity): SurfaceView(context), SurfaceHold
             (width / 2) - (player.size.width / 2),
             (player.position.y + doubleTileHeight),
             player.size.width, player.size.height,
-            0xFFFF00FF)
+            Color.MAGENTA)
+    }
+
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        Log.d("Point", "x=${event?.x}; y=${event?.y}")
+        return false
+    }
+
+    override fun onJoystickMoved(percent: Dimensions, id: Int) {
+        player.position.setVelocity(percent.x.times(5).toInt(), null)
     }
 }
