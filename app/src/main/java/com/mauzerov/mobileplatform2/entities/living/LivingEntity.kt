@@ -4,12 +4,11 @@ import android.util.Log
 import com.mauzerov.mobileplatform2.entities.Entity
 import com.mauzerov.mobileplatform2.include.Position
 import com.mauzerov.mobileplatform2.values.const.GameConstants
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.ObjectInput
 import java.io.ObjectOutput
 import java.io.Serializable
+import kotlin.properties.Delegates
 
 abstract class LivingEntity : Entity(), Serializable {
     abstract val leapTimeMillis: Long
@@ -17,6 +16,8 @@ abstract class LivingEntity : Entity(), Serializable {
 
     var isJumping: Boolean = false
         private set
+
+    var onHealthChanged : (value: Int, max: Int) -> Unit = { _, _ ->  }
 
     override fun move() {
         setVelocity (null, if(!isJumping) -GameConstants.gravity else (GameConstants.gravity * leapStrength).toInt())
@@ -29,15 +30,18 @@ abstract class LivingEntity : Entity(), Serializable {
             Log.d("JUMP", "Not Jumping")
             return
         }
-        GlobalScope.launch {
+        MainScope().launch {
             isJumping = true
             delay(leapTimeMillis)
             isJumping = false
         }
     }
 
-    var health: Int = BASE_HEATH
     open val MAX_HEALTH = BASE_HEATH
+    var health: Int by Delegates.observable(BASE_HEATH) { property, oldValue, newValue ->
+        Log.d("Heart", "Event")
+        this.onHealthChanged(newValue, MAX_HEALTH)
+    }
 
     fun hit(healthPoints: Int): Boolean {
         return run {

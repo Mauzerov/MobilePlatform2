@@ -93,7 +93,12 @@ class GameView(private val context: Activity):
         }
     }
 
-    val player: Player = Player(0, 0, 32, 32)
+    val player: Player = Player(0, 0, 32, 32).apply {
+        this.onHealthChanged = { value, max ->
+            Log.d("Heart", "Override")
+            this@GameView.gameBar.updateHearts(value, max, 5)
+        }
+    }
     val entities: MutableList<LivingEntity> = mutableListOf()
 
     private var thread: UpdateThread = UpdateThread(this)
@@ -197,13 +202,13 @@ class GameView(private val context: Activity):
                     g.gameDrawText(i.toString(),
                         drawX,
                         (heightMap[i].actual * tileSize.height),
-                        0xFF_00_00_00,
+                        Color.BLACK,
                         40f
                     )
                     g.gameDrawText(biomeMap[i].toString(),
                         drawX,
                         (heightMap[i].actual * tileSize.height)+tileSize.height,
-                        0xFF_00_00_00,
+                        Color.BLACK,
                         20f
                     )
 
@@ -254,7 +259,7 @@ class GameView(private val context: Activity):
     }
 
     override fun onJoystickMoved(percent: Dimensions, id: Int) {
-        player.position.setVelocity(percent.x.times(5).toInt(), null)
+        player.position.setVelocity(percent.x.times(7).toInt(), null)
     }
 
     override fun bringToFront() {

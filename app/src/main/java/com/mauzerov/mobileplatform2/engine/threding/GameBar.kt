@@ -2,7 +2,6 @@ package com.mauzerov.mobileplatform2.engine.threding
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.graphics.*
 import android.util.Log
 import android.util.Size
@@ -10,20 +9,18 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.ColorInt
-import androidx.appcompat.widget.ButtonBarLayout
 import com.mauzerov.mobileplatform2.MainActivity
-import com.mauzerov.mobileplatform2.extensions.between
 import com.mauzerov.mobileplatform2.extensions.createStaticColorBitmap
 import com.mauzerov.mobileplatform2.mvvm.GameBarWidget
 import com.mauzerov.mobileplatform2.mvvm.button.GameBarButton
 import com.mauzerov.mobileplatform2.values.const.GameConstants.RefreshInterval
 import com.mauzerov.mobileplatform2.include.Point
-import kotlin.properties.Delegates
+import com.mauzerov.mobileplatform2.mvvm.other.GameBarHeartRow
 
 @SuppressLint("ViewConstructor")
 class GameBar(context: Activity, var game: GameView) : SurfaceView(context), SurfaceHolder.Callback {
     var barHeight = 80
-
+    private var heartRow: GameBarHeartRow
     class GameBarThread(val view: GameBar) : Thread() {
         var isRunning = false
 
@@ -60,15 +57,33 @@ class GameBar(context: Activity, var game: GameView) : SurfaceView(context), Sur
             }
         })
         widgets.add(object: GameBarButton(context) {
-            override var position = Point(-this@GameBar.barHeight, 0)
+            override var position = Point(-(2*this@GameBar.barHeight), 0)
             init {
-                size = Size(this@GameBar.barHeight, this@GameBar.barHeight)
+                size = Size(2*this@GameBar.barHeight, this@GameBar.barHeight)
                 bitmap = createStaticColorBitmap(size.width, size.height, Color.GREEN)
             }
             override fun onClick() {
                 main.setting.open()
             }
         })
+
+        widgets.add(object: GameBarButton(context) {
+            override var position = Point(this@GameBar.barHeight, 0)
+            init {
+                size = Size(this@GameBar.barHeight, this@GameBar.barHeight)
+                bitmap = createStaticColorBitmap(size.width, size.height, Color.BLUE)
+            }
+            override fun onClick() {
+                game.player.hit(1)
+            }
+        })
+
+        heartRow = GameBarHeartRow(context).apply {
+            size = Size(5*this@GameBar.barHeight, this@GameBar.barHeight)
+            position = Point(240, 0)
+        }
+        widgets.add(heartRow)
+
         bringToFront()
     }
 
@@ -85,6 +100,10 @@ class GameBar(context: Activity, var game: GameView) : SurfaceView(context), Sur
             }
         }
         return super.onTouchEvent(e)
+    }
+
+    fun updateHearts(value: Int, max: Int, count: Int) {
+        this.heartRow.updateHearts(value, max, count)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {

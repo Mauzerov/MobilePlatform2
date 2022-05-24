@@ -39,13 +39,14 @@ fun Canvas.gameDrawBitmap(bitmap: Bitmap, x: Int, y: Int) {
         Paint())
 }
 
-fun Canvas.gameDrawText(text: String, x: Int, y: Int, color: Long, fontSize: Float = 20F) {
+fun Canvas.gameDrawText(text: String, x: Int, y: Int, @ColorInt color: Int, fontSize: Float = 20F) {
     this.drawText(text,
         x.toFloat() - GameViewCanvasConfig.screenOffsetX,
         GameViewCanvasConfig.screenHeight - y.toFloat() - GameViewCanvasConfig.screenOffsetY,
         GameColor.paint.apply {
-            this.alpha = GameColor.getAlpha(color)
-            this.color = GameColor.noAlpha(color)
+            this.alpha = Color.alpha(color)
+            this.color = color
+            this.textSize = fontSize
         })
 }
 
