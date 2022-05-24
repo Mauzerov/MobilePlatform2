@@ -17,10 +17,12 @@ import com.mauzerov.mobileplatform2.extensions.createStaticColorBitmap
 import com.mauzerov.mobileplatform2.mvvm.GameBarWidget
 import com.mauzerov.mobileplatform2.mvvm.button.GameBarButton
 import com.mauzerov.mobileplatform2.values.const.GameConstants.RefreshInterval
+import com.mauzerov.mobileplatform2.include.Point
+import kotlin.properties.Delegates
 
 @SuppressLint("ViewConstructor")
 class GameBar(context: Activity, var game: GameView) : SurfaceView(context), SurfaceHolder.Callback {
-    var barHeight: Int = 80
+    var barHeight = 80
 
     class GameBarThread(val view: GameBar) : Thread() {
         var isRunning = false
@@ -44,10 +46,9 @@ class GameBar(context: Activity, var game: GameView) : SurfaceView(context), Sur
     private val main: MainActivity = (context as MainActivity)
     private val widgets = mutableListOf<GameBarWidget>()
     private var thread = GameBarThread(this)
-    private lateinit var w: Point
     init {
-        Log.d("TopBar", "Init")
         holder.addCallback(this)
+
         widgets.add(object: GameBarButton(context) {
             override var position = Point(0, 0)
             init {
@@ -55,53 +56,33 @@ class GameBar(context: Activity, var game: GameView) : SurfaceView(context), Sur
                 bitmap = createStaticColorBitmap(size.width, size.height, Color.RED)
             }
             override fun onClick() {
-                Log.d("Event", "OnClick")
                 main.setting.open()
             }
         })
-        w = Point(-this@GameBar.barHeight, 0)
-        //FIXME Reference Madness prevents correct event capturing \
-        // ($w === it.position) return `false` though should be true
         widgets.add(object: GameBarButton(context) {
-            override var position = w
+            override var position = Point(-this@GameBar.barHeight, 0)
             init {
-                Log.d("Event", "${-barHeight}")
                 size = Size(this@GameBar.barHeight, this@GameBar.barHeight)
                 bitmap = createStaticColorBitmap(size.width, size.height, Color.GREEN)
             }
             override fun onClick() {
-                Log.d("Event", "${position.x}")
                 main.setting.open()
             }
         })
-
         bringToFront()
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
         e?.let {
-            Log.d("HEIGHT", height.toString() + " " + e.x.toString())
-//            Log.d("HEIGHT", e.action.toString())
             when (e.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    widgets.filterIsInstance<GameBarButton>().forEach {
-                        Log.d("Event", "ran ${it.position === w}")
-                        return it.getPressEvent(e.x.toInt(), e.y.toInt())
+                    return widgets.filterIsInstance<GameBarButton>().any { btn ->
+                        btn.getPressEvent(e.x.toInt(), e.y.toInt())
                     }
-//                    if (e.x.between(0f, height.toFloat())) {
-////                        main.toggleSettingsMenu()
-//                        return true
-//                    }
-//
-//                    if (e.x.between((width - height - height).toFloat(), width.toFloat())) {
-////                        main.toggleEqMenu()
-////                        (main.eqMenu as DropdownEq).refill(game)
-//                        return true
-//                    }
                 }
+                else -> return false
             }
-
         }
         return super.onTouchEvent(e)
     }

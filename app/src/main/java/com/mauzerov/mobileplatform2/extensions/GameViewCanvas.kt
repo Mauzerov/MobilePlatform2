@@ -1,5 +1,6 @@
 package com.mauzerov.mobileplatform2.extensions
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -25,7 +26,8 @@ object GameColor {
 }
 
 object GameViewCanvasConfig {
-    var screenHeight: Float = 0F
+    var screenHeight: Float =  Resources.getSystem().displayMetrics.heightPixels.toFloat()
+    var screenWidth: Float = Resources.getSystem().displayMetrics.widthPixels.toFloat()
     var screenOffsetX: Float = 0F
     var screenOffsetY: Float = 0F
 }
