@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
+import androidx.appcompat.widget.ContentFrameLayout
 import com.mauzerov.mobileplatform.items.ItemDrawable
 import com.mauzerov.mobileplatform2.MainActivity
 import com.mauzerov.mobileplatform2.R
@@ -33,12 +34,13 @@ import com.mauzerov.mobileplatform2.values.const.GameConstants.tileSize
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
-class GameView(private val context: Activity):
+class GameView(private val context: Activity, private val filePath: String):
     SurfaceView(context),
     SurfaceHolder.Callback,
     View.OnTouchListener,
     JoyStick.JoystickListener
 {
+    var finished: Boolean = false
     private val textures = Textures(context.resources)
 
     private class UpdateThread(private val gameView: GameView) : Thread() {
@@ -102,7 +104,11 @@ class GameView(private val context: Activity):
     val entities: MutableList<LivingEntity> = mutableListOf()
 
     private var thread: UpdateThread = UpdateThread(this)
-    private var gameBar = GameBar(context, this)
+    internal var gameBar = GameBar(context, this)
+
+    fun deleteGameBar(remover: (View) -> Unit) {
+        remover(gameBar)
+    }
 
     init {
         (context as MainActivity).addViewOnTop(gameBar, gameBar.barHeight)

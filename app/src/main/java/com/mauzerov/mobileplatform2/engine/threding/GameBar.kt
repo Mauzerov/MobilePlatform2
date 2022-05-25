@@ -18,7 +18,7 @@ import com.mauzerov.mobileplatform2.include.Point
 import com.mauzerov.mobileplatform2.mvvm.other.GameBarHeartRow
 
 @SuppressLint("ViewConstructor")
-class GameBar(context: Activity, var game: GameView) : SurfaceView(context), SurfaceHolder.Callback {
+class GameBar(var context: Activity, var game: GameView) : SurfaceView(context), SurfaceHolder.Callback {
     var barHeight = 80
     private var heartRow: GameBarHeartRow
     class GameBarThread(val view: GameBar) : Thread() {
@@ -43,6 +43,7 @@ class GameBar(context: Activity, var game: GameView) : SurfaceView(context), Sur
     private val main: MainActivity = (context as MainActivity)
     private val widgets = mutableListOf<GameBarWidget>()
     private var thread = GameBarThread(this)
+
     init {
         holder.addCallback(this)
 
@@ -130,6 +131,8 @@ class GameBar(context: Activity, var game: GameView) : SurfaceView(context), Sur
         }
     }
     public override fun onDraw(canvas: Canvas?) {
+        context.runOnUiThread { bringToFront() }
+        Log.d("Draw", "fsdgjdfgjkl")
         canvas?.let {
             canvas.drawColor(Color.BLACK)
 
