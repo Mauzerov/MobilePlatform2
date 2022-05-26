@@ -22,6 +22,5 @@ data class Position(var x:Int, var y: Int) : Serializable {
     fun move() {
         x += horizontalVelocity / 1.coerceAtLeast(2 * (x / GameConstants.tileSize.width !in 0 .. GameConstants.mapSize + 1).toInt())
         y += verticalVelocity
-        Log.d("VEL", verticalVelocity.toString())
     }
 }

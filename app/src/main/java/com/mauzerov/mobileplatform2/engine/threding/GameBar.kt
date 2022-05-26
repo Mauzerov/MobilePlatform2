@@ -10,6 +10,8 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.ColorInt
 import com.mauzerov.mobileplatform2.MainActivity
+import com.mauzerov.mobileplatform2.extensions.GameColor
+import com.mauzerov.mobileplatform2.extensions.GameViewCanvasConfig
 import com.mauzerov.mobileplatform2.extensions.createStaticColorBitmap
 import com.mauzerov.mobileplatform2.mvvm.GameBarWidget
 import com.mauzerov.mobileplatform2.mvvm.button.GameBarButton
@@ -18,35 +20,14 @@ import com.mauzerov.mobileplatform2.include.Point
 import com.mauzerov.mobileplatform2.mvvm.other.GameBarHeartRow
 
 @SuppressLint("ViewConstructor")
-class GameBar(var context: Activity, var game: GameView) : SurfaceView(context), SurfaceHolder.Callback {
+class GameBar(var context: Activity, var game: GameView) { //: SurfaceView(context), SurfaceHolder.Callback {
     var barHeight = 80
     private var heartRow: GameBarHeartRow
-    class GameBarThread(val view: GameBar) : Thread() {
-        var isRunning = false
 
-        @SuppressLint("WrongCall")
-        override fun run() {
-            while (isRunning) {
-                var canvas: Canvas? = null
-                try {
-                    val startTime = System.currentTimeMillis()
-                    canvas = view.holder.lockCanvas()
-                    synchronized(view.holder) { view.onDraw(canvas) }
-                    val duration = System.currentTimeMillis() - startTime
-                    sleep(0L.coerceAtLeast(RefreshInterval - duration))
-                } finally {
-                    if (canvas != null) view.holder.unlockCanvasAndPost(canvas)
-                }
-            }
-        }
-    }
     private val main: MainActivity = (context as MainActivity)
     private val widgets = mutableListOf<GameBarWidget>()
-    private var thread = GameBarThread(this)
 
     init {
-        holder.addCallback(this)
-
         widgets.add(object: GameBarButton(context) {
             override var position = Point(0, 0)
             init {
@@ -59,10 +40,9 @@ class GameBar(var context: Activity, var game: GameView) : SurfaceView(context),
         })
         widgets.add(object: GameBarButton(context) {
             override var position = Point(-(2*this@GameBar.barHeight), 0)
-            init {
-                size = Size(2*this@GameBar.barHeight, this@GameBar.barHeight)
-                bitmap = createStaticColorBitmap(size.width, size.height, Color.GREEN)
-            }
+            override var size = Size(2*this@GameBar.barHeight, this@GameBar.barHeight)
+            override var bitmap = createStaticColorBitmap(size.width, size.height, Color.GREEN)
+
             override fun onClick() {
                 main.setting.open()
             }
@@ -70,12 +50,20 @@ class GameBar(var context: Activity, var game: GameView) : SurfaceView(context),
 
         widgets.add(object: GameBarButton(context) {
             override var position = Point(this@GameBar.barHeight, 0)
-            init {
-                size = Size(this@GameBar.barHeight, this@GameBar.barHeight)
-                bitmap = createStaticColorBitmap(size.width, size.height, Color.BLUE)
-            }
+            override var size = Size(this@GameBar.barHeight, this@GameBar.barHeight)
+            override var bitmap = createStaticColorBitmap(size.width, size.height, Color.BLUE)
+
             override fun onClick() {
                 game.player.hit(1)
+            }
+        })
+        widgets.add(object: GameBarButton(context) {
+            override var position = Point(2 * this@GameBar.barHeight, 0)
+            override var size = Size(this@GameBar.barHeight, this@GameBar.barHeight)
+            override var bitmap = createStaticColorBitmap(size.width, size.height, Color.YELLOW)
+
+            override fun onClick() {
+                game.player.heal(2)
             }
         })
 
@@ -84,12 +72,10 @@ class GameBar(var context: Activity, var game: GameView) : SurfaceView(context),
             position = Point(240, 0)
         }
         widgets.add(heartRow)
-
-        bringToFront()
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(e: MotionEvent?): Boolean {
+    fun onTouchEvent(e: MotionEvent?): Boolean {
         e?.let {
             when (e.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -100,93 +86,22 @@ class GameBar(var context: Activity, var game: GameView) : SurfaceView(context),
                 else -> return false
             }
         }
-        return super.onTouchEvent(e)
+        return false
     }
 
     fun updateHearts(value: Int, max: Int, count: Int) {
         this.heartRow.updateHearts(value, max, count)
     }
 
-    override fun surfaceCreated(holder: SurfaceHolder) {
-        Log.d("HEIGHT", "surfaceCreated")
-    }
+    fun onDraw(canvas: Canvas) {
+        canvas.drawRect(0F, 0F,
+            GameViewCanvasConfig.screenWidth, barHeight.toFloat(),
+            GameColor.paint.apply {
+            color = Color.BLACK
+        })
 
-    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Log.d("HEIGHT", "surfaceChanged")
-        if (thread.state == Thread.State.TERMINATED) {
-            thread = GameBarThread(this)
-        }
-        thread.isRunning = true
-        thread.start()
-    }
-
-    override fun surfaceDestroyed(holder: SurfaceHolder) {
-        var retry = true
-        thread.isRunning = false
-        while (retry) {
-            try {
-                thread.join()
-                retry = false
-            } catch (ignored : InterruptedException) {}
-        }
-    }
-    public override fun onDraw(canvas: Canvas?) {
-        context.runOnUiThread { bringToFront() }
-        Log.d("Draw", "fsdgjdfgjkl")
-        canvas?.let {
-            canvas.drawColor(Color.BLACK)
-
-            widgets.forEach {
-                it.draw(canvas)
-            }
-            // Settings Button
-
-/*
-            canvas.drawRect(0F, 0F, height.toFloat(), height.toFloat(), Color.RED)
-            drawing.RectBorderless(canvas, DisplayRect(0, 0, height, height), AlphaColor(0xFF0000))
-
-            // Eq Button
-            drawing.RectBorderless(canvas, DisplayRect(width - height - height, 0, height shl 1, height), AlphaColor(0x00FF00))
-
-            var offset = (height shr 1) + height
-            // Player Hearts
-            val heartsPercent = game.player.health.toFloat() / game.player.MAX_HEALTH
-            // Display Non-Colored
-
-            var possibleHearts = HEART_DISPLAY_AMOUNT
-            var possibleIndex = -1
-            while (let { possibleHearts--; possibleIndex++; possibleHearts } >= 0) {
-                drawing.RectBorderless(canvas, DisplayRect(offset + (height * possibleIndex),
-                    0, height shr 1, height), HEART_LEFT_NON_COLOR)
-                drawing.RectBorderless(canvas, DisplayRect(offset + (height * possibleIndex) + (height shr 1),
-                    0, height shr 1, height), HEART_RIGHT_NON_COLOR)
-            }
-
-            // Display Colored
-            var hearts = heartsPercent * HEART_DISPLAY_AMOUNT
-
-            var index = -1
-            //Log.d("HEIGHT1", hearts.toString())
-            while (let { hearts--; index++; hearts } >= 0) {
-                //Log.d("HEIGHT", hearts.toString())
-                drawing.RectBorderless(canvas, DisplayRect(offset + (height * index),
-                    0, height shr 1, height), HEART_LEFT_COLOR)
-                drawing.RectBorderless(canvas, DisplayRect(offset + (height * index) + (height shr 1),
-                    0, height shr 1, height), HEART_RIGHT_COLOR)
-            }
-            if (hearts >= -.5) {
-                drawing.RectBorderless(canvas, DisplayRect(offset + (height * index),
-                    0, height shr 1, height), HEART_LEFT_COLOR)
-            }
-
-            //Log.d("HEIGHT2", hearts.toString())
-
-            offset += HEART_DISPLAY_AMOUNT * height
-
-            drawing.Text(canvas, "${game.player.moneyString} €", offset + (height shr 1), height - 5, MONEY_COLOR, height.toFloat())
-
-            //Log.d("HEIGHT", "Drawn $height $width")
-*/
+        widgets.forEach {
+            it.draw(canvas)
         }
     }
 

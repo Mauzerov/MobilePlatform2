@@ -6,6 +6,7 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -43,25 +44,20 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
 //            settingsDroppable.open()
 //        }
 
-//        closeGame()
+        closeGame()
 
-        //FIXME Showing of GameBar is Not Working in different but still same implementation
-        gameView = GameView(this, "")
+//        gameView = GameView(this, "")
 
-        this.addContentView(gameView, gameViewLayout)
+//        this.addContentView(gameView, gameViewLayout)
 
-        gameView.bringToFront()
-        findViewById<View>(R.id.joystick).bringToFront()
-
+//        gameView.bringToFront()
+//        findViewById<View>(R.id.joystick).bringToFront()
     }
 
     private fun closeGame(path: String? = null) {
         if (::gameView.isInitialized) {
             gameView.finished = true
             findViewById<ContentFrameLayout>(android.R.id.content).removeView(gameView)
-            gameView.deleteGameBar {
-                findViewById<ContentFrameLayout>(android.R.id.content).removeView(it)
-            }
         }
 
         if (::mainMenu.isInitialized)
@@ -91,10 +87,9 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
 
         this.addContentView(gameView, gameViewLayout)
         gameView.bringToFront()
-        //gameView.bringToFront()
         findViewById<View>(R.id.joystick).apply {
             visibility = VISIBLE
-            //bringToFront()
+            bringToFront()
         }
     }
 

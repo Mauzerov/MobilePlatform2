@@ -104,19 +104,16 @@ class GameView(private val context: Activity, private val filePath: String):
     val entities: MutableList<LivingEntity> = mutableListOf()
 
     private var thread: UpdateThread = UpdateThread(this)
-    internal var gameBar = GameBar(context, this)
+    var gameBar = GameBar(context, this)
 
-    fun deleteGameBar(remover: (View) -> Unit) {
-        remover(gameBar)
-    }
 
     init {
-        (context as MainActivity).addViewOnTop(gameBar, gameBar.barHeight)
-
         holder.addCallback(this)
         entities.add(player)
 
         setOnTouchListener(this)
+
+        player.hit(0)
     }
 
     public override fun onDraw(g: Canvas?) {
@@ -228,6 +225,8 @@ class GameView(private val context: Activity, private val filePath: String):
 //
 //            drawing.Text(g, timeElapsed.toString(), 10, 200, blackAlphaColor, 40f)
             //drawing.RectBorderless(g, DisplayRect(width / 2 - 2,0, 4, height), AlphaColor(0xffc0c0))
+
+            gameBar.onDraw(it)
         }
     }
 
@@ -259,17 +258,11 @@ class GameView(private val context: Activity, private val filePath: String):
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         Log.d("Point", "x=${event?.x}; y=${event?.y}")
-        Log.d("Point", "${gameBar.parent}")
-        this.gameBar.bringToFront()
-        return false
+
+        return gameBar.onTouchEvent(event)
     }
 
     override fun onJoystickMoved(percent: Dimensions, id: Int) {
         player.position.setVelocity(percent.x.times(7).toInt(), null)
-    }
-
-    override fun bringToFront() {
-        super.bringToFront()
-        this.gameBar.bringToFront()
     }
 }
