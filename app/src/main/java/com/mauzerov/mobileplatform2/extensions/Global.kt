@@ -1,9 +1,13 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.mauzerov.mobileplatform2.extensions
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty1
 
 
 fun Boolean.toInt() : Int = if (this) 1 else 0
@@ -30,4 +34,15 @@ fun createStaticColorBitmap(width: Int, height: Int, color: Int): Bitmap {
     paint.color = color
     canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
     return bitmap
+}
+
+fun <R> Any.getValue(propertyName: String): R {
+    val property = this::class.members
+        .first { it.name == propertyName } as KProperty1<Any, *>
+    return property.get(this) as R
+}
+
+fun <R> Any.setValue(propertyName: String, value: R) {
+    val property = this::class.members.first { it.name == propertyName } as KMutableProperty<*>
+    property.setter.call(this, value)
 }
