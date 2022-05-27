@@ -1,21 +1,18 @@
 package com.mauzerov.mobileplatform2
 
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
+import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ContentFrameLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.threding.GameView
-import com.mauzerov.mobileplatform2.extensions.GameViewCanvasConfig
 import com.mauzerov.mobileplatform2.mvvm.dropdown.DropdownSettings
 import com.mauzerov.mobileplatform2.mvvm.dropdown.Droppable
 import com.mauzerov.mobileplatform2.mvvm.layout.MainMenuLayout
@@ -40,21 +37,15 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
 
         settingsDroppable = DropdownSettings(this)
 
-//        findViewById<Button>(R.id.settings_open).setOnClickListener {
-//            settingsDroppable.open()
-//        }
-
+        // Load Main Menu
         closeGame()
 
-//        gameView = GameView(this, "")
-
-//        this.addContentView(gameView, gameViewLayout)
-
-//        gameView.bringToFront()
-//        findViewById<View>(R.id.joystick).bringToFront()
     }
 
     private fun closeGame(path: String? = null) {
+        findViewById<View>(R.id.joystick).apply {
+            visibility = GONE
+        }
         if (::gameView.isInitialized) {
             gameView.finished = true
             findViewById<ContentFrameLayout>(android.R.id.content).removeView(gameView)

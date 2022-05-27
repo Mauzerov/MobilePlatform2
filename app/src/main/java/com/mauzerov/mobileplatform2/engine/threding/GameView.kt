@@ -117,16 +117,15 @@ class GameView(private val context: Activity, private val filePath: String):
     }
 
     private fun saveStateToFile() {
-        val saveObject = object: GameSave() {
-            override var playerSave: PlayerSave = object : PlayerSave() {
-                override var positionX: Int = player.position.x
-                override var positionY: Int = player.position.y
-                override var health: Int = player.health
-                override var money: Long = player.money
-
-            }
-            override var buildingSav: BuildingSave = object : BuildingSave() {}
-        }
+        val saveObject = GameSave(
+            playerSave = PlayerSave(
+                positionX = player.position.x,
+                positionY = player.position.y,
+                health = player.health,
+                money = player.money,
+                ),
+            buildingSav = BuildingSave()
+        )
         FileSystem.writeObject(context, filePath, saveObject)
     }
 
