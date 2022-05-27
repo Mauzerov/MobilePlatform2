@@ -1,22 +1,17 @@
 package com.mauzerov.mobileplatform2.engine.files
 
 import android.content.Context
-import android.util.Xml
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToJsonElement
 import java.io.*
 import java.nio.charset.Charset
 
 object FileSystem {
-    fun readObject(context: Context, path: String) : Serializable {
+    inline fun <reified T>readObject(context: Context, path: String) : T {
         val string = File(context.filesDir, path).readText(Charset.defaultCharset())
         return Json.decodeFromString(string)
     }
-    fun writeObject(context: Context, path: String, `object`: Serializable) {
+    inline fun <reified T>writeObject(context: Context, path: String, `object`: T) {
         val encoded = Json.encodeToString(`object`)
         File(context.filesDir, path).writeText(encoded, Charset.defaultCharset())
     }

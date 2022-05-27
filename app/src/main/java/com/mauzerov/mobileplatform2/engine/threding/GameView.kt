@@ -17,6 +17,10 @@ import com.mauzerov.mobileplatform2.R
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.drawing.Textures
+import com.mauzerov.mobileplatform2.engine.files.FileSystem
+import com.mauzerov.mobileplatform2.engine.files.GameSave
+import com.mauzerov.mobileplatform2.engine.files.inner.BuildingSave
+import com.mauzerov.mobileplatform2.engine.files.inner.PlayerSave
 import com.mauzerov.mobileplatform2.entities.living.LivingEntity
 import com.mauzerov.mobileplatform2.entities.living.Player
 import com.mauzerov.mobileplatform2.extensions.*
@@ -31,6 +35,7 @@ import com.mauzerov.mobileplatform2.values.const.GameConstants.heightMap
 import com.mauzerov.mobileplatform2.values.const.GameConstants.mapSize
 import com.mauzerov.mobileplatform2.values.const.GameConstants.oceanDepth
 import com.mauzerov.mobileplatform2.values.const.GameConstants.tileSize
+import java.io.File
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
@@ -86,7 +91,7 @@ class GameView(private val context: Activity, private val filePath: String):
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         var retry = true
         thread.isRunning = false
-//                saveSaveFile()
+        saveStateToFile()
         while (retry) {
             try {
                 thread.join()
@@ -106,6 +111,25 @@ class GameView(private val context: Activity, private val filePath: String):
     private var thread: UpdateThread = UpdateThread(this)
     var gameBar = GameBar(context, this)
 
+    private fun loadStateFromFile() {
+        val saveObject: GameSave = FileSystem.readObject(context, filePath) as GameSave
+        player.loadFromSaveObject(saveObject.playerSave)
+    }
+
+    private fun saveStateToFile() {
+        val saveObject = object: GameSave() {
+            override var playerSave: PlayerSave = object : PlayerSave() {
+                override var positionX: Int = player.position.x
+                override var positionY: Int = player.position.y
+                override var health: Int = player.health
+                override var money: Long = player.money
+
+            }
+            override var buildingSav: BuildingSave = object : BuildingSave() {}
+        }
+        FileSystem.writeObject(context, filePath, saveObject)
+    }
+
 
     init {
         holder.addCallback(this)
@@ -113,6 +137,8 @@ class GameView(private val context: Activity, private val filePath: String):
 
         setOnTouchListener(this)
 
+        if (File(context.filesDir, filePath).exists())
+            loadStateFromFile()
         player.hit(0)
     }
 
