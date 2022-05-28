@@ -2,18 +2,13 @@ package com.mauzerov.mobileplatform2.engine.threding
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.res.Resources
 import android.graphics.*
-import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import androidx.appcompat.widget.ContentFrameLayout
 import com.mauzerov.mobileplatform.items.ItemDrawable
-import com.mauzerov.mobileplatform2.MainActivity
-import com.mauzerov.mobileplatform2.R
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.drawing.Textures
@@ -36,7 +31,6 @@ import com.mauzerov.mobileplatform2.values.const.GameConstants.mapSize
 import com.mauzerov.mobileplatform2.values.const.GameConstants.oceanDepth
 import com.mauzerov.mobileplatform2.values.const.GameConstants.tileSize
 import java.io.File
-import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
 class GameView(private val context: Activity, private val filePath: String):
@@ -103,13 +97,13 @@ class GameView(private val context: Activity, private val filePath: String):
     val player: Player = Player(0, 0, 32, 32).apply {
         this.onHealthChanged = { value, max ->
             Log.d("Heart", "Override")
-            this@GameView.gameBar.updateHearts(value, max, 5)
+            this@GameView.gameBar. updateHearts(value, max, 5)
         }
     }
     val entities: MutableList<LivingEntity> = mutableListOf()
 
     private var thread: UpdateThread = UpdateThread(this)
-    var gameBar = GameBar(context, this)
+    private var gameBar = GameBar(context, this)
 
     private fun loadStateFromFile() {
         val saveObject: GameSave = FileSystem.readObject(context, filePath) as GameSave
@@ -142,9 +136,32 @@ class GameView(private val context: Activity, private val filePath: String):
     }
 
     public override fun onDraw(g: Canvas?) {
+        fun getMinPossibleHeight(pos: Position): Int {
+            val mapX = ((pos.x) / tileSize.width)
+
+            if (mapX in 0 until mapSize && pos.x.between(0, mapSize * tileSize.width))
+                return heightMap[mapX].ground * tileSize.height
+            return -oceanDepth * 4
+        }
+
+        fun adjustYPosition(pos: Position) {
+            pos.y = pos.y.coerceAtLeast(getMinPossibleHeight(pos))
+        }
+
+        fun drawPlayer(g: Canvas) {
+            adjustYPosition(player.position)
+            GameViewCanvasConfig.screenOffsetX = 0F
+            GameViewCanvasConfig.screenOffsetY = player.size.height.toFloat()
+            g.gameDrawRect(
+                (width / 2) - (player.size.width / 2),
+                (player.position.y + doubleTileHeight),
+                player.size.width, player.size.height,
+                Color.MAGENTA
+            )
+        }
+
         val tiles = (width / doubleTileWidth)
         val noTile = (width % tileSize.width)
-        //Log.d("TILES", "$tiles, $noTile")
         var drawX = (noTile shr 1) - tileSize.width
         g?.let {
             GameViewCanvasConfig.screenOffsetX = 0F
@@ -159,7 +176,7 @@ class GameView(private val context: Activity, private val filePath: String):
             {
                 if (i !in 0 until mapSize || (biomeMap[i] == Biome.Ocean)) {
                     // Generate Ocean
-                    drawOcean(g, drawX)
+                    g.gameDrawRect(drawX, -oceanDepth, tileSize.width, doubleTileHeight, 0xFF16a085.toInt())
                 }
                 else {
                     if (heightMap[i].isTunnel()) {
@@ -245,40 +262,8 @@ class GameView(private val context: Activity, private val filePath: String):
             }
             drawPlayer(g)
 
-//            g.gameDrawRect(705, 610, 801, 674, 0xFFFF00FF)
-//            val timeElapsed = (1000F / (SystemClock.elapsedRealtime() - lastTime) * 10).roundToInt().toFloat() / 10
-//
-//            drawing.Text(g, timeElapsed.toString(), 10, 200, blackAlphaColor, 40f)
-            //drawing.RectBorderless(g, DisplayRect(width / 2 - 2,0, 4, height), AlphaColor(0xffc0c0))
-
             gameBar.onDraw(it)
         }
-    }
-
-    private fun drawOcean(g: Canvas, x: Int) {
-        g.gameDrawRect(x, -oceanDepth, tileSize.width, doubleTileHeight, Color.argb(0xFF, 0, 0xFF, 0xFF))
-    }
-    private fun getMinPossibleHeight(pos: Position) : Int {
-        val mapX = ((pos.x) / tileSize.width)
-
-        if (mapX in 0 until mapSize && pos.x.between(0, mapSize * tileSize.width))
-            return heightMap[mapX].ground * tileSize.height
-        return -oceanDepth * 4
-    }
-
-    private fun adjustYPosition(pos: Position) {
-        pos.y = pos.y.coerceAtLeast(getMinPossibleHeight(pos))
-    }
-
-    private fun drawPlayer(g: Canvas) {
-        adjustYPosition(player.position)
-        GameViewCanvasConfig.screenOffsetX = 0F
-        GameViewCanvasConfig.screenOffsetY = player.size.height.toFloat()
-        g.gameDrawRect(
-            (width / 2) - (player.size.width / 2),
-            (player.position.y + doubleTileHeight),
-            player.size.width, player.size.height,
-            Color.MAGENTA)
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
