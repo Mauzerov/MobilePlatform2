@@ -21,4 +21,5 @@ class Textures(resources: Resources) {
     val ground = Ground(resources)
     val tree = Tree(resources)
     val sky: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.sky)
+    val questionMark: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.qq)
 }

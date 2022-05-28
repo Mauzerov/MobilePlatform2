@@ -4,13 +4,13 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Point
 import android.util.Log
 import android.util.Size
 import androidx.core.graphics.toPointF
 import com.mauzerov.mobileplatform2.R
 import com.mauzerov.mobileplatform2.extensions.GameColor
 import com.mauzerov.mobileplatform2.extensions.GameViewCanvasConfig
-import com.mauzerov.mobileplatform2.include.Point
 
 abstract class GameBarWidget(context: Activity) {
     open lateinit var position: Point

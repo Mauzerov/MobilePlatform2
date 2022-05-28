@@ -2,11 +2,11 @@ package com.mauzerov.mobileplatform2.mvvm.other
 
 import android.app.Activity
 import android.graphics.Canvas
+import android.graphics.Point
 import android.util.Log
 import android.util.Size
 import com.mauzerov.mobileplatform2.engine.threding.GameBar
 import com.mauzerov.mobileplatform2.include.NoUpdate
-import com.mauzerov.mobileplatform2.include.Point
 import com.mauzerov.mobileplatform2.mvvm.GameBarWidget
 import kotlin.math.roundToInt
 import kotlin.reflect.jvm.isAccessible

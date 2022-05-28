@@ -16,7 +16,6 @@ import com.mauzerov.mobileplatform2.extensions.createStaticColorBitmap
 import com.mauzerov.mobileplatform2.mvvm.GameBarWidget
 import com.mauzerov.mobileplatform2.mvvm.button.GameBarButton
 import com.mauzerov.mobileplatform2.values.const.GameConstants.RefreshInterval
-import com.mauzerov.mobileplatform2.include.Point
 import com.mauzerov.mobileplatform2.mvvm.other.GameBarHeartRow
 
 @SuppressLint("ViewConstructor")

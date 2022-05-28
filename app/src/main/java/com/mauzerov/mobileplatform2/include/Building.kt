@@ -1,7 +1,7 @@
 package com.mauzerov.mobileplatform2.include
 
-class Building(buildingType: Int, var height: Int) {
-    val type: BuildingType = BuildingType[buildingType]
+data class Building(val type: BuildingType, var height: Int) {
+//    val type: BuildingType = BuildingType[buildingType]
 
 }
 
