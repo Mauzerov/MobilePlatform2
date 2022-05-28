@@ -2,10 +2,9 @@
 
 package com.mauzerov.mobileplatform2.extensions
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.*
+import androidx.annotation.ColorInt
+import androidx.core.graphics.ColorUtils
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty1
 
@@ -46,3 +45,6 @@ fun <R> Any.setValue(propertyName: String, value: R) {
     val property = this::class.members.first { it.name == propertyName } as KMutableProperty<*>
     property.setter.call(this, value)
 }
+inline val @receiver:ColorInt Int.darken
+    @ColorInt
+    get() = ColorUtils.blendARGB(this, Color.BLACK, 0.2f)
