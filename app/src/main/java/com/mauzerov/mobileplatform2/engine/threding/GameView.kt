@@ -8,7 +8,6 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import com.mauzerov.mobileplatform.items.ItemDrawable
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.drawing.Textures
@@ -22,6 +21,8 @@ import com.mauzerov.mobileplatform2.extensions.*
 import com.mauzerov.mobileplatform2.include.Biome
 import com.mauzerov.mobileplatform2.include.Height
 import com.mauzerov.mobileplatform2.include.Position
+import com.mauzerov.mobileplatform2.items.ItemDrawable
+import com.mauzerov.mobileplatform2.items.consumable.Sprouty
 import com.mauzerov.mobileplatform2.values.const.GameConstants.RefreshInterval
 import com.mauzerov.mobileplatform2.values.const.GameConstants.biomeMap
 import com.mauzerov.mobileplatform2.values.const.GameConstants.doubleTileHeight
@@ -58,7 +59,7 @@ class GameView(private val context: Activity, private val filePath: String):
                     synchronized(gameView.holder) { gameView.onDraw(canvas) }
                     val duration = System.currentTimeMillis() - startTime
 
-                    gameView.player.selectedItem?.let {
+                    gameView.player.items.selected?.let { it ->
                         if (it is ItemDrawable && it.isShowed) {
                             it.drawMySelf(canvas)
                         }
@@ -133,6 +134,13 @@ class GameView(private val context: Activity, private val filePath: String):
         if (File(context.filesDir, filePath).exists())
             loadStateFromFile()
         player.hit(0)
+        player.items.all.add(
+            Sprouty(resources).apply {
+                this.setSpecialActivity {
+                    player.heal(this.healthPoints)
+                }
+            }
+        )
     }
 
     public override fun onDraw(g: Canvas?) {

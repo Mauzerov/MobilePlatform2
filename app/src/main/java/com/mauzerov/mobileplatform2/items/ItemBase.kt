@@ -11,7 +11,15 @@ import com.mauzerov.mobileplatform2.engine.threding.GameView
 
 abstract class ItemBase(private var resources: Resources) {
     abstract val resourceIconId: Int
-    abstract fun specialActivity(event: MotionEvent?, gameMap: GameView)
+    private var specialActivity = { false; }
+
+    fun setSpecialActivity(`fun`: () -> Boolean) {
+        specialActivity = `fun`
+    }
+
+    fun callSpecialActivity() : Boolean {
+        return specialActivity()
+    }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     fun getIcon() : Bitmap {

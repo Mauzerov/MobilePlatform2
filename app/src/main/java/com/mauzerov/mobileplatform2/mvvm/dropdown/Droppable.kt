@@ -14,6 +14,7 @@ abstract class Droppable constructor(context: Activity) :
     ConstraintLayout(context) {
     private val animationSlideUp = AnimationUtils.loadAnimation(context, R.anim.slide_up)
     private val animationSlideDown = AnimationUtils.loadAnimation(context, R.anim.slide_down)
+    private var afterOpen : (() -> Unit)? = null
 
     init {
         val panelLayout = RelativeLayout.LayoutParams(
@@ -47,6 +48,7 @@ abstract class Droppable constructor(context: Activity) :
     private fun onOpen(): Long {
         bringToFront()
         this.visibility = VISIBLE
+        afterOpen?.invoke()
         this.startAnimation(animationSlideDown)
         return animationSlideDown.duration
     }
@@ -57,5 +59,9 @@ abstract class Droppable constructor(context: Activity) :
 
     fun close(): Long {
         return this.onClose()
+    }
+
+    fun setAfterOpenEvent(f: () -> Unit) {
+        this.afterOpen = f
     }
 }

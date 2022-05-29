@@ -1,10 +1,10 @@
 package com.mauzerov.mobileplatform2.entities.living
 
 import android.util.Size
-import com.mauzerov.mobileplatform.items.Equipment
-import com.mauzerov.mobileplatform.items.ItemBase
 import com.mauzerov.mobileplatform2.engine.files.FileLoad
 import com.mauzerov.mobileplatform2.engine.files.inner.PlayerSave
+import com.mauzerov.mobileplatform2.items.Equipment
+import com.mauzerov.mobileplatform2.items.ItemBase
 
 // TODO: Make Eq Savable 
 class Player(x: Int, y: Int, w: Int, h: Int) : LivingEntity(), FileLoad {

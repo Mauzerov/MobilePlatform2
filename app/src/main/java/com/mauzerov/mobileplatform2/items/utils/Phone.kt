@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
+import com.mauzerov.mobileplatform2.MainActivity
 import com.mauzerov.mobileplatform2.items.ItemBase
 import com.mauzerov.mobileplatform2.items.ItemDrawable
 import com.mauzerov.mobileplatform2.R
@@ -17,12 +18,10 @@ class Phone(resources: Resources) : ItemBase(resources), ItemDrawable {
     override val resourceIconId: Int
         get() = R.drawable.test_img_draw_canvas
 
-    override fun specialActivity(event: MotionEvent?, gameMap: GameView) {
-        gameMap.player.items.phone?.let { it ->
-            it.isUp = false
-            //it.isShowed = false
-            gameMap.player.selectedItem = null
-        }?:run {}
+    init {
+        setSpecialActivity {
+            isUp = false; return@setSpecialActivity true;
+        }
     }
 
     override fun drawMySelf(canvas: Canvas) {

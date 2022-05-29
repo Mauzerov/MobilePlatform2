@@ -13,6 +13,7 @@ import androidx.appcompat.widget.ContentFrameLayout
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.threding.GameView
+import com.mauzerov.mobileplatform2.mvvm.dropdown.DropdownInventory
 import com.mauzerov.mobileplatform2.mvvm.dropdown.DropdownSettings
 import com.mauzerov.mobileplatform2.mvvm.dropdown.Droppable
 import com.mauzerov.mobileplatform2.mvvm.layout.MainMenuLayout
@@ -38,7 +39,11 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
         setContentView(R.layout.activity_main)
 
         settingsDroppable = DropdownSettings(this)
-        settingsDroppable = DropdownInventory(this)
+        inventoryDroppable = DropdownInventory(this).also {
+            it.setAfterOpenEvent {
+                it.refill(gameView.player.items)
+            }
+        }
 
         // Load Main Menu
         closeGame()
