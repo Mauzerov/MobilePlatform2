@@ -9,8 +9,6 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import com.mauzerov.mobileplatform.items.ItemDrawable
-import com.mauzerov.mobileplatform2.R
 import com.mauzerov.mobileplatform2.adapter.controller.Dimensions
 import com.mauzerov.mobileplatform2.adapter.controller.JoyStick
 import com.mauzerov.mobileplatform2.engine.drawing.Textures
@@ -24,6 +22,8 @@ import com.mauzerov.mobileplatform2.extensions.*
 import com.mauzerov.mobileplatform2.include.Biome
 import com.mauzerov.mobileplatform2.include.Height
 import com.mauzerov.mobileplatform2.include.Position
+import com.mauzerov.mobileplatform2.items.ItemDrawable
+import com.mauzerov.mobileplatform2.items.consumable.Sprouty
 import com.mauzerov.mobileplatform2.sprites.buildings.Building
 import com.mauzerov.mobileplatform2.sprites.buildings.Clickable
 import com.mauzerov.mobileplatform2.sprites.buildings.MissionBuilding
@@ -64,7 +64,7 @@ class GameView(private val context: Activity, private val filePath: String):
                     synchronized(gameView.holder) { gameView.onDraw(canvas) }
                     val duration = System.currentTimeMillis() - startTime
 
-                    gameView.player.selectedItem?.let {
+                    gameView.player.items.selected?.let {
                         if (it is ItemDrawable && it.isShowed) {
                             it.drawMySelf(canvas)
                         }
@@ -151,7 +151,28 @@ class GameView(private val context: Activity, private val filePath: String):
                 return true
             }
         })
+        buildings.add(object: MissionBuilding(), Clickable {
+            override val missionId: Int = 420
+            override val roof: Bitmap  = createStaticColorBitmap(tileSize.width, tileSize.width, Color.BLUE)
+            override val story: Bitmap = createStaticColorBitmap(tileSize.width, tileSize.width, 0xF0a29bfe.toInt())
+            override val position: Point = Point(99, 0)
+            override val size: Point = Point(2, 1)
 
+            override fun onClick(position: Point) : Boolean {
+                if (!this.collides(position.x))
+                    return false
+                Log.d("Mission", "$missionId")
+
+                return true
+            }
+        })
+        player.items.all.add(
+            Sprouty(resources).apply {
+                this.setSpecialActivity {
+                    player.heal(this.healthPoints)
+                }
+            }
+        )
         // if save file exists load state from it
         if (File(context.filesDir, filePath).exists())
             loadStateFromFile()

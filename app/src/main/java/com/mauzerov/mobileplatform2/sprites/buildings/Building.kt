@@ -29,7 +29,7 @@ abstract class Building {
     }
 
     fun draw(canvas: Canvas, left: Int) {
-        val drawX = (position.x - left) * tileSize.width
+        var drawX = (position.x - left) * tileSize.width
         for (i in 0 until size.x) {
             var offsetFromGround = (heightMap[position.x].actual) * tileSize.height + tileSize.width
             floor?.let {
@@ -41,6 +41,8 @@ abstract class Building {
                 offsetFromGround += tileSize.width
             }
             canvas.gameDrawBitmap(roof, drawX, offsetFromGround)
+
+            drawX += tileSize.width
         }
     }
 }

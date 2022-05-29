@@ -38,7 +38,10 @@ class GameBar(var context: Activity, var game: GameView) { //: SurfaceView(conte
             }
         })
         widgets.add(object: GameBarButton(context) {
-            override var position = Point(-(2*this@GameBar.barHeight), 0)
+            override var position = Point(-(2*this@GameBar.barHeight), 0).apply {
+                if (x < 0) x += GameViewCanvasConfig.screenWidth.toInt()
+                if (y < 0) y += GameViewCanvasConfig.screenHeight.toInt()
+            }
             override var size = Size(2*this@GameBar.barHeight, this@GameBar.barHeight)
             override var bitmap = createStaticColorBitmap(size.width, size.height, Color.GREEN)
 
