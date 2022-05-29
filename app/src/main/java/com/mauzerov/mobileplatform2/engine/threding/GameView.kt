@@ -6,6 +6,8 @@ import android.graphics.*
 import android.util.Log
 import android.util.Size
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_POINTER_UP
+import android.view.MotionEvent.ACTION_UP
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -150,11 +152,30 @@ class GameView(private val context: Activity, private val filePath: String):
                 if (!this.collides(position.x))
                     return false
 
-                popup = CanvasPopup().apply {
-                    this.widgets.add(object: PopupWidget() {
-                        override val bitmap = createStaticColorBitmap(50, 50, Color.WHITE)
-                        override val position = Point(-100, 200)
-                    })
+                popup = object : CanvasPopup() {
+                    override val marginBlock: Int
+                        get() = 400
+                    init {
+                        this.widgets.add(object: PopupWidget() {
+                            override fun draw(
+                                canvas: Canvas,
+                                leftMargin: Float,
+                                topMargin: Float,
+                                rightMargin: Float,
+                                bottomMargin: Float
+                            ) {
+                                canvas.drawText(
+                                    "Starting Mission: $missionId",
+                                        leftMargin + 160,
+                                        topMargin + 100,
+                                        GameColor.paint.apply {
+                                            color = Color.WHITE
+                                            textSize = 70F
+                                        }
+                                    )
+                            }
+                        })
+                    }
                 }
 
                 Log.d("Mission", "$missionId")
@@ -340,8 +361,20 @@ class GameView(private val context: Activity, private val filePath: String):
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        Log.d("Point", "x=${event?.x}; y=${event?.y}")
+        Log.d("Point", "x=${event?.x}; y=${event?.y}; event=${event?.action}")
         event?.let {
+            if (event.action != 0)
+                return false
+            popup?.let { c ->
+                if (
+                    event.x.between2(c.marginInline.toFloat(), width.toFloat() - c.marginInline) &&
+                    event.y.between2(c.marginBlock.toFloat(), height.toFloat() - c.marginBlock)
+                ) {
+                    popup = null
+                    return true
+                }
+            }
+
             val offsetToCenter = event.x.toInt() - (width / 2 - (player.size.width / 2))
             val pressedX = player.position.x + offsetToCenter
             val mapIndex = pressedX / tileSize.width

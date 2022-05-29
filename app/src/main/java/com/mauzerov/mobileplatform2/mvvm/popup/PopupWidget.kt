@@ -13,7 +13,7 @@ open class PopupWidget {
     open val position: Point = Point(0, 0)
 
 
-    fun draw(canvas: Canvas, leftMargin: Float, topMargin: Float, rightMargin: Float, bottomMargin: Float) {
+    open fun draw(canvas: Canvas, leftMargin: Float, topMargin: Float, rightMargin: Float, bottomMargin: Float) {
         Log.d("Popup", "${canvas.width}")
         val top = if (position.y < 0) canvas.height - bitmap.height - bottomMargin + position.y else position.y + topMargin
         val left = if (position.x < 0)  rightMargin - bitmap.width + position.x else position.x + leftMargin
