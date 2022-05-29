@@ -19,7 +19,9 @@ import com.mauzerov.mobileplatform2.mvvm.layout.MainMenuLayout
 
 
 class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
+
     private lateinit var settingsDroppable: Droppable
+    private lateinit var inventoryDroppable: Droppable
     private lateinit var gameView: GameView
     private lateinit var mainMenu: MainMenuLayout
     private val gameViewLayout = RelativeLayout.LayoutParams(
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
         setContentView(R.layout.activity_main)
 
         settingsDroppable = DropdownSettings(this)
+        settingsDroppable = DropdownInventory(this)
 
         // Load Main Menu
         closeGame()
@@ -87,6 +90,8 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
 
     val setting: Droppable
         get() = settingsDroppable
+    val inventory: Droppable
+        get() = inventoryDroppable
 
     fun addViewOnTop(view: View, height: Int) {
         val panelLayout = RelativeLayout.LayoutParams(

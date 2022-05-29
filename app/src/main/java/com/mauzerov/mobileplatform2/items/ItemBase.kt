@@ -1,4 +1,4 @@
-package com.mauzerov.mobileplatform.items
+package com.mauzerov.mobileplatform2.items
 
 import android.annotation.SuppressLint
 import android.content.res.Resources

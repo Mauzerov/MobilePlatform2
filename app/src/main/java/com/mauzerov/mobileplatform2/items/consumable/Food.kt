@@ -3,7 +3,7 @@ package com.mauzerov.mobileplatform2.items.consumable
 import android.content.res.Resources
 import android.util.Log
 import android.view.MotionEvent
-import com.mauzerov.mobileplatform.items.ItemBase
+import com.mauzerov.mobileplatform2.items.ItemBase
 import com.mauzerov.mobileplatform2.engine.threding.GameView
 
 abstract class Food(resources: Resources): ItemBase(resources) {

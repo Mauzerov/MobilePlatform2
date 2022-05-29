@@ -1,4 +1,4 @@
-package com.mauzerov.mobileplatform.items.consumables
+package com.mauzerov.mobileplatform2.items.consumable
 
 import android.content.res.Resources
 import com.mauzerov.mobileplatform2.R

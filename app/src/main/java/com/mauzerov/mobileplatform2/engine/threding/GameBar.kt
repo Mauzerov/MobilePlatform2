@@ -44,7 +44,7 @@ class GameBar(var context: Activity, var game: GameView) { //: SurfaceView(conte
             override var bitmap = createStaticColorBitmap(size.width, size.height, Color.GREEN)
 
             override fun onClick() {
-                main.setting.open()
+                main.inventory.open()
             }
         })
 

@@ -5,8 +5,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
-import com.mauzerov.mobileplatform.items.ItemBase
-import com.mauzerov.mobileplatform.items.ItemDrawable
+import com.mauzerov.mobileplatform2.items.ItemBase
+import com.mauzerov.mobileplatform2.items.ItemDrawable
 import com.mauzerov.mobileplatform2.R
 import com.mauzerov.mobileplatform2.engine.threding.GameView
 
