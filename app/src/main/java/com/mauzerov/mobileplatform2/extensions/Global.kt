@@ -1,25 +1,27 @@
-@file:Suppress("UNCHECKED_CAST")
+@file:Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 
 package com.mauzerov.mobileplatform2.extensions
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.*
+import androidx.annotation.ColorInt
+import androidx.core.graphics.ColorUtils
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty1
 
 
-fun Boolean.toInt() : Int = if (this) 1 else 0
-fun Boolean.toLong() : Long = if (this) 1 else 0
-fun Boolean.toShort() : Short = if (this) 1 else 0
-fun Boolean.toByte() : Byte = if (this) 1 else 0
+inline fun Boolean.toInt() : Int = if (this) 1 else 0
+inline fun Boolean.toLong() : Long = if (this) 1 else 0
+inline fun Boolean.toShort() : Short = if (this) 1 else 0
+inline fun Boolean.toByte() : Byte = if (this) 1 else 0
 
-fun <T>T.between(minimumValue: T, maximumValue: T): Boolean where T : Comparable<T>, T: Number {
+inline fun <T>T.between(minimumValue: T, maximumValue: T): Boolean where T : Comparable<T>, T: Number {
     return minimumValue < this && this < maximumValue
 }
+inline fun <T>T.between2(minimumValue: T, maximumValue: T): Boolean where T : Comparable<T>, T: Number {
+    return this in minimumValue..maximumValue
+}
 
-fun <T>T.clamp(minimumValue: T, maximumValue: T): T where T : Comparable<T>, T: Number {
+inline fun <T>T.clamp(minimumValue: T, maximumValue: T): T where T : Comparable<T>, T: Number {
     assert(minimumValue <= maximumValue)
 
     return if (minimumValue < this && this < maximumValue) this
@@ -46,3 +48,6 @@ fun <R> Any.setValue(propertyName: String, value: R) {
     val property = this::class.members.first { it.name == propertyName } as KMutableProperty<*>
     property.setter.call(this, value)
 }
+inline val @receiver:ColorInt Int.darken
+    @ColorInt
+    get() = ColorUtils.blendARGB(this, Color.BLACK, 0.2f)

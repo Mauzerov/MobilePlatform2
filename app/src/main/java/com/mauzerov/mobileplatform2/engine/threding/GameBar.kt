@@ -16,7 +16,6 @@ import com.mauzerov.mobileplatform2.extensions.createStaticColorBitmap
 import com.mauzerov.mobileplatform2.mvvm.GameBarWidget
 import com.mauzerov.mobileplatform2.mvvm.button.GameBarButton
 import com.mauzerov.mobileplatform2.values.const.GameConstants.RefreshInterval
-import com.mauzerov.mobileplatform2.include.Point
 import com.mauzerov.mobileplatform2.mvvm.other.GameBarHeartRow
 
 @SuppressLint("ViewConstructor")
@@ -67,9 +66,11 @@ class GameBar(var context: Activity, var game: GameView) { //: SurfaceView(conte
             }
         })
 
-        heartRow = GameBarHeartRow(context).apply {
+        heartRow = GameBarHeartRow(context, HEART_DISPLAY_AMOUNT).apply {
             size = Size(5*this@GameBar.barHeight, this@GameBar.barHeight)
             position = Point(240, 0)
+
+            init()
         }
         widgets.add(heartRow)
     }
