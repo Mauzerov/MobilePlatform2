@@ -20,8 +20,7 @@ abstract class Building {
     abstract val size: Point
 
     fun collides(x: Int) : Boolean {
-        return x.between2(position.x,position.x)
-
+        return x.between2(position.x, position.x + size.x - 1)
     }
 
     fun fits(left: Int, right: Int): Boolean {

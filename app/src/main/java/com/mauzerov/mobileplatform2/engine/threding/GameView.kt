@@ -6,6 +6,8 @@ import android.graphics.*
 import android.util.Log
 import android.util.Size
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_POINTER_UP
+import android.view.MotionEvent.ACTION_UP
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -24,6 +26,8 @@ import com.mauzerov.mobileplatform2.include.Height
 import com.mauzerov.mobileplatform2.include.Position
 import com.mauzerov.mobileplatform2.items.ItemDrawable
 import com.mauzerov.mobileplatform2.items.consumable.Sprouty
+import com.mauzerov.mobileplatform2.mvvm.popup.CanvasPopup
+import com.mauzerov.mobileplatform2.mvvm.popup.PopupWidget
 import com.mauzerov.mobileplatform2.sprites.buildings.Building
 import com.mauzerov.mobileplatform2.sprites.buildings.Clickable
 import com.mauzerov.mobileplatform2.sprites.buildings.MissionBuilding
@@ -110,6 +114,7 @@ class GameView(private val context: Activity, private val filePath: String):
 
     private var thread: UpdateThread = UpdateThread(this)
     private var gameBar = GameBar(context, this)
+    private var popup: CanvasPopup? = null
 
     private fun loadStateFromFile() {
         val saveObject: GameSave = FileSystem.readObject(context, filePath) as GameSave
@@ -146,6 +151,33 @@ class GameView(private val context: Activity, private val filePath: String):
             override fun onClick(position: Point) : Boolean {
                 if (!this.collides(position.x))
                     return false
+
+                popup = object : CanvasPopup() {
+                    override val marginBlock: Int
+                        get() = 400
+                    init {
+                        this.widgets.add(object: PopupWidget() {
+                            override fun draw(
+                                canvas: Canvas,
+                                leftMargin: Float,
+                                topMargin: Float,
+                                rightMargin: Float,
+                                bottomMargin: Float
+                            ) {
+                                canvas.drawText(
+                                    "Starting Mission: $missionId",
+                                        leftMargin + 160,
+                                        topMargin + 100,
+                                        GameColor.paint.apply {
+                                            color = Color.WHITE
+                                            textSize = 70F
+                                        }
+                                    )
+                            }
+                        })
+                    }
+                }
+
                 Log.d("Mission", "$missionId")
 
                 return true
@@ -322,13 +354,27 @@ class GameView(private val context: Activity, private val filePath: String):
             }
             drawPlayer(g)
 
+            popup?.draw(it)
+
             gameBar.onDraw(it)
         }
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        Log.d("Point", "x=${event?.x}; y=${event?.y}")
+        Log.d("Point", "x=${event?.x}; y=${event?.y}; event=${event?.action}")
         event?.let {
+            if (event.action != 0)
+                return false
+            popup?.let { c ->
+                if (
+                    event.x.between2(c.marginInline.toFloat(), width.toFloat() - c.marginInline) &&
+                    event.y.between2(c.marginBlock.toFloat(), height.toFloat() - c.marginBlock)
+                ) {
+                    popup = null
+                    return true
+                }
+            }
+
             val offsetToCenter = event.x.toInt() - (width / 2 - (player.size.width / 2))
             val pressedX = player.position.x + offsetToCenter
             val mapIndex = pressedX / tileSize.width
@@ -338,7 +384,11 @@ class GameView(private val context: Activity, private val filePath: String):
                 .any { it.onClick(Point(mapIndex, event.y.toInt())) }
             ) return true
         }
-        return gameBar.onTouchEvent(event)
+        if (gameBar.onTouchEvent(event)) return true
+
+        popup = null
+
+        return false
     }
 
     override fun onJoystickMoved(percent: Dimensions, id: Int) {
