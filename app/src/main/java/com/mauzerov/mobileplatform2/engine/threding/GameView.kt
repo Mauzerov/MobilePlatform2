@@ -24,6 +24,8 @@ import com.mauzerov.mobileplatform2.include.Height
 import com.mauzerov.mobileplatform2.include.Position
 import com.mauzerov.mobileplatform2.items.ItemDrawable
 import com.mauzerov.mobileplatform2.items.consumable.Sprouty
+import com.mauzerov.mobileplatform2.mvvm.popup.CanvasPopup
+import com.mauzerov.mobileplatform2.mvvm.popup.PopupWidget
 import com.mauzerov.mobileplatform2.sprites.buildings.Building
 import com.mauzerov.mobileplatform2.sprites.buildings.Clickable
 import com.mauzerov.mobileplatform2.sprites.buildings.MissionBuilding
@@ -110,6 +112,7 @@ class GameView(private val context: Activity, private val filePath: String):
 
     private var thread: UpdateThread = UpdateThread(this)
     private var gameBar = GameBar(context, this)
+    private var popup: CanvasPopup? = null
 
     private fun loadStateFromFile() {
         val saveObject: GameSave = FileSystem.readObject(context, filePath) as GameSave
@@ -146,6 +149,14 @@ class GameView(private val context: Activity, private val filePath: String):
             override fun onClick(position: Point) : Boolean {
                 if (!this.collides(position.x))
                     return false
+
+                popup = CanvasPopup().apply {
+                    this.widgets.add(object: PopupWidget() {
+                        override val bitmap = createStaticColorBitmap(50, 50, Color.WHITE)
+                        override val position = Point(-100, 200)
+                    })
+                }
+
                 Log.d("Mission", "$missionId")
 
                 return true
@@ -322,6 +333,8 @@ class GameView(private val context: Activity, private val filePath: String):
             }
             drawPlayer(g)
 
+            popup?.draw(it)
+
             gameBar.onDraw(it)
         }
     }
@@ -338,7 +351,11 @@ class GameView(private val context: Activity, private val filePath: String):
                 .any { it.onClick(Point(mapIndex, event.y.toInt())) }
             ) return true
         }
-        return gameBar.onTouchEvent(event)
+        if (gameBar.onTouchEvent(event)) return true
+
+        popup = null
+
+        return false
     }
 
     override fun onJoystickMoved(percent: Dimensions, id: Int) {
