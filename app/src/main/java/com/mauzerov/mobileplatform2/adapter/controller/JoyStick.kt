@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -123,7 +122,6 @@ class JoyStick :
     override fun surfaceDestroyed(holder: SurfaceHolder) { }
 
     override fun onTouch(view: View, e : MotionEvent) : Boolean {
-        Log.d("Touch", "Joy")
         if (view != this || checkValuesNotNull())
             return true
         val eventDimensions = Dimensions(e.x, e.y)
