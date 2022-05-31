@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity(), JoyStick.JoystickListener {
 
         // Load Main Menu
         closeGame()
-
     }
 
     private fun closeGame(path: String? = null) {
