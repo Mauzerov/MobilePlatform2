@@ -395,6 +395,7 @@ class GameView(private val context: Activity, private val filePath: String):
         Log.d("Touch", "View ${v is GameView}")
         Log.d("Point", "x=${event?.x}; y=${event?.y}; event=${event?.action}")
         event?.let {
+            // TODO: check if point collides with ui(Controller/Buttons) Element and finish event
             if (event.action != 0)
                 return false
             popup?.let { c ->
