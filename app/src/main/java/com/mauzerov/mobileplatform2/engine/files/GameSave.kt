@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GameSave(
+    var seed: Long = 0,
     var playerSave: PlayerSave,
     var buildingSav: BuildingSave,
 )

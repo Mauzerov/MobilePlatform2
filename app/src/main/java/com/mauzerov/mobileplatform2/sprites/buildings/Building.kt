@@ -30,7 +30,8 @@ abstract class Building {
     fun draw(canvas: Canvas, left: Int) {
         var drawX = (position.x - left) * tileSize.width
         for (i in 0 until size.x) {
-            var offsetFromGround = (heightMap[position.x].actual) * tileSize.height + tileSize.width
+
+            var offsetFromGround = (heightMap.subList(position.x, position.x + size.x).minOf { it.actual }) * tileSize.height + tileSize.width
             floor?.let {
                 canvas.gameDrawBitmap(it, drawX, offsetFromGround)
                 offsetFromGround += tileSize.width
@@ -43,5 +44,9 @@ abstract class Building {
 
             drawX += tileSize.width
         }
+    }
+
+    fun collides(other: Building) : Boolean {
+        return ((this.position.x until this.position.x + this.size.x) intersect (other.position.x until other.position.x + other.size.x)).isNotEmpty()
     }
 }

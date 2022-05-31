@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.*
 import android.util.Log
-import android.util.Size
 import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_POINTER_UP
-import android.view.MotionEvent.ACTION_UP
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -27,7 +24,6 @@ import com.mauzerov.mobileplatform2.include.Position
 import com.mauzerov.mobileplatform2.items.ItemDrawable
 import com.mauzerov.mobileplatform2.items.consumable.Sprouty
 import com.mauzerov.mobileplatform2.mvvm.popup.CanvasPopup
-import com.mauzerov.mobileplatform2.mvvm.popup.PopupWidget
 import com.mauzerov.mobileplatform2.sprites.buildings.Building
 import com.mauzerov.mobileplatform2.sprites.buildings.Clickable
 import com.mauzerov.mobileplatform2.sprites.buildings.MissionBuilding
@@ -39,7 +35,10 @@ import com.mauzerov.mobileplatform2.values.const.GameConstants.heightMap
 import com.mauzerov.mobileplatform2.values.const.GameConstants.mapSize
 import com.mauzerov.mobileplatform2.values.const.GameConstants.oceanDepth
 import com.mauzerov.mobileplatform2.values.const.GameConstants.tileSize
+import com.mauzerov.mobileplatform2.values.const.random
+import com.mauzerov.mobileplatform2.values.const.requiredBuildings
 import java.io.File
+import kotlin.random.Random
 
 @SuppressLint("ViewConstructor")
 class GameView(private val context: Activity, private val filePath: String):
@@ -49,6 +48,7 @@ class GameView(private val context: Activity, private val filePath: String):
     JoyStick.JoystickListener
 {
     private val buildings: MutableList<Building> = mutableListOf()
+    private var gameSeed = System.currentTimeMillis()
     var finished: Boolean = false
     private val textures = Textures(context.resources)
 
@@ -114,15 +114,17 @@ class GameView(private val context: Activity, private val filePath: String):
 
     private var thread: UpdateThread = UpdateThread(this)
     private var gameBar = GameBar(context, this)
-    private var popup: CanvasPopup? = null
+    var popup: CanvasPopup? = null
 
     private fun loadStateFromFile() {
         val saveObject: GameSave = FileSystem.readObject(context, filePath) as GameSave
+        gameSeed = saveObject.seed
         player.loadFromSaveObject(saveObject.playerSave)
     }
 
     private fun saveStateToFile() {
         val saveObject = GameSave(
+            seed = gameSeed,
             playerSave = PlayerSave(
                 positionX = player.position.x,
                 positionY = player.position.y,
@@ -135,11 +137,41 @@ class GameView(private val context: Activity, private val filePath: String):
     }
 
     init {
+        /** Pre Game Init **/
         holder.addCallback(this)
         entities.add(player)
 
         setOnTouchListener(this)
+        random = Random(gameSeed)
 
+        /** Game Init **/
+        // if save file exists load state from it
+        if (File(context.filesDir, filePath).exists())
+            loadStateFromFile()
+
+        /** After Game Init **/
+        requiredBuildings.forEach {
+            Log.d("Add", "${it.first}")
+            for (i in 0 until it.first) {
+                Log.d("Add", "Added $i")
+                buildings.add(
+                    it.second().apply {
+                        this.position.x = biomeMap.mapIndexed { index, biome ->
+                            Pair(index, biome)
+                        }.filter { that ->
+                            that.second == Biome.City &&
+                            // Prevent Building Collision
+                            (buildings.any { b -> !this.collides(b) } || buildings.isEmpty())
+                        }.random(random).first
+                    }
+                )
+            }
+        }
+        Log.d("Add", "Size: ${buildings.size}")
+        buildings.forEach {
+            Log.d("Add", "\t${it.position.x}")
+        }
+        /*
         buildings.add(object: MissionBuilding(), Clickable {
             override val missionId: Int = 1337
             override val roof: Bitmap  = createStaticColorBitmap(tileSize.width, tileSize.width, Color.DKGRAY)
@@ -198,6 +230,7 @@ class GameView(private val context: Activity, private val filePath: String):
                 return true
             }
         })
+        */
         player.items.all.add(
             Sprouty(resources).apply {
                 this.setSpecialActivity {
@@ -205,9 +238,7 @@ class GameView(private val context: Activity, private val filePath: String):
                 }
             }
         )
-        // if save file exists load state from it
-        if (File(context.filesDir, filePath).exists())
-            loadStateFromFile()
+
         player.hit(0)
     }
     private fun getTiles(): Int = (width / doubleTileWidth)
@@ -361,6 +392,7 @@ class GameView(private val context: Activity, private val filePath: String):
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        Log.d("Touch", "View ${v is GameView}")
         Log.d("Point", "x=${event?.x}; y=${event?.y}; event=${event?.action}")
         event?.let {
             if (event.action != 0)
@@ -381,7 +413,7 @@ class GameView(private val context: Activity, private val filePath: String):
 
             if (buildings.filter { it.fits(getDrawLeft(), getDrawRight()) }
                 .filterIsInstance<Clickable>()
-                .any { it.onClick(Point(mapIndex, event.y.toInt())) }
+                .any { it.onClick(Point(mapIndex, event.y.toInt()), this) }
             ) return true
         }
         if (gameBar.onTouchEvent(event)) return true
