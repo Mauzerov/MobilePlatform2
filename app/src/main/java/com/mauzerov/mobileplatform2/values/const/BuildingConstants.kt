@@ -32,13 +32,10 @@ val requiredBuildings: List<Pair<Int, () -> Building>> = listOf(
             override val size: Point = Point(2, 5)
 
             override fun onClick(position: Point, gameView: GameView): Boolean {
-                if (!this.collides(position.x))
+                if (!this.collides(position))
                     return false
 
                 gameView.popup = object : CanvasPopup() {
-                    override val marginBlock: Int
-                        get() = 400
-
                     init {
                         this.widgets.add(object : PopupWidget() {
                             override fun draw(
@@ -79,13 +76,10 @@ val requiredBuildings: List<Pair<Int, () -> Building>> = listOf(
             override val size: Point = Point(2, 1)
 
             override fun onClick(position: Point, gameView: GameView): Boolean {
-                if (!this.collides(position.x))
+                if (!this.collides(position))
                     return false
 
                 gameView.popup = object : CanvasPopup() {
-                    override val marginBlock: Int
-                        get() = 400
-
                     init {
                         this.widgets.add(object : PopupWidget() {
                             override fun draw(

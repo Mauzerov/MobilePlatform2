@@ -171,66 +171,6 @@ class GameView(private val context: Activity, private val filePath: String):
         buildings.forEach {
             Log.d("Add", "\t${it.position.x}")
         }
-        /*
-        buildings.add(object: MissionBuilding(), Clickable {
-            override val missionId: Int = 1337
-            override val roof: Bitmap  = createStaticColorBitmap(tileSize.width, tileSize.width, Color.DKGRAY)
-            override val story: Bitmap = createStaticColorBitmap(tileSize.width, tileSize.width, 0x50FF0000.toInt())
-            override val floor: Bitmap = createStaticColorBitmap(tileSize.width, tileSize.width, 0x5000FF00.toInt())
-            override val position: Point = Point(104, 0)
-            override val size: Point = Point(2, 5)
-
-            override fun onClick(position: Point) : Boolean {
-                if (!this.collides(position.x))
-                    return false
-
-                popup = object : CanvasPopup() {
-                    override val marginBlock: Int
-                        get() = 400
-                    init {
-                        this.widgets.add(object: PopupWidget() {
-                            override fun draw(
-                                canvas: Canvas,
-                                leftMargin: Float,
-                                topMargin: Float,
-                                rightMargin: Float,
-                                bottomMargin: Float
-                            ) {
-                                canvas.drawText(
-                                    "Starting Mission: $missionId",
-                                        leftMargin + 160,
-                                        topMargin + 100,
-                                        GameColor.paint.apply {
-                                            color = Color.WHITE
-                                            textSize = 70F
-                                        }
-                                    )
-                            }
-                        })
-                    }
-                }
-
-                Log.d("Mission", "$missionId")
-
-                return true
-            }
-        })
-        buildings.add(object: MissionBuilding(), Clickable {
-            override val missionId: Int = 420
-            override val roof: Bitmap  = createStaticColorBitmap(tileSize.width, tileSize.width, Color.BLUE)
-            override val story: Bitmap = createStaticColorBitmap(tileSize.width, tileSize.width, 0xF0a29bfe.toInt())
-            override val position: Point = Point(99, 0)
-            override val size: Point = Point(2, 1)
-
-            override fun onClick(position: Point) : Boolean {
-                if (!this.collides(position.x))
-                    return false
-                Log.d("Mission", "$missionId")
-
-                return true
-            }
-        })
-        */
         player.items.all.add(
             Sprouty(resources).apply {
                 this.setSpecialActivity {
@@ -399,12 +339,13 @@ class GameView(private val context: Activity, private val filePath: String):
             if (event.action != 0)
                 return false
             popup?.let { c ->
+                val margins = c.margins(width.toFloat(), height.toFloat())
                 if (
-                    event.x.between2(c.marginInline.toFloat(), width.toFloat() - c.marginInline) &&
-                    event.y.between2(c.marginBlock.toFloat(), height.toFloat() - c.marginBlock)
+                    event.x.between2(margins.left, margins.right) &&
+                    event.y.between2(margins.top, margins.bottom)
                 ) {
                     popup = null
-                    return true
+                    return@onTouch true
                 }
             }
 
@@ -414,7 +355,7 @@ class GameView(private val context: Activity, private val filePath: String):
 
             if (buildings.filter { it.fits(getDrawLeft(), getDrawRight()) }
                 .filterIsInstance<Clickable>()
-                .any { it.onClick(Point(mapIndex, event.y.toInt()), this) }
+                .any { it.onClick(Point(mapIndex, height - event.y.toInt()), this) }
             ) return true
         }
         if (gameBar.onTouchEvent(event)) return true

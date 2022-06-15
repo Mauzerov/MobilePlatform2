@@ -19,13 +19,19 @@ abstract class Building {
     // Size(x=width in amount of bitmaps, y=amount of stories)
     abstract val size: Point
 
-    fun collides(x: Int) : Boolean {
-        return x.between2(position.x, position.x + size.x - 1)
+    fun collides(click: Point) : Boolean {
+        return click.x.between2(position.x, position.x + size.x - 1)
+                && click.y.between2(offsetFromGround, offsetFromGround + actualBlockHeight)
     }
 
     fun fits(left: Int, right: Int): Boolean {
         return position.x.between2(left, right)
     }
+    private val actualBlockHeight
+        get() = size.y * tileSize.width
+
+    private val offsetFromGround: Int
+        get() = (heightMap.subList(position.x, position.x + size.x).minOf { it.actual }) * tileSize.height + tileSize.width
 
     fun draw(canvas: Canvas, left: Int) {
         var drawX = (position.x - left) * tileSize.width
